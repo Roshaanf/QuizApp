@@ -1,9 +1,13 @@
-package roshaan.quizapplication;
+package roshaan.quizapplication.activities;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import roshaan.quizapplication.LoginFragment;
+import roshaan.quizapplication.R;
+import roshaan.quizapplication.SignupFragment;
 
 public class AuthenticationActivity extends AppCompatActivity implements
         LoginFragment.OnFragmentInteractionListener,

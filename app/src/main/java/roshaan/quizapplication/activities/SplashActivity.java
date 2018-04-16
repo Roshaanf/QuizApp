@@ -1,4 +1,4 @@
-package roshaan.quizapplication;
+package roshaan.quizapplication.activities;
 
 import android.content.Intent;
 import android.os.Handler;
@@ -12,6 +12,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import roshaan.quizapplication.R;
+import roshaan.quizapplication.UserModel;
 
 public class SplashActivity extends AppCompatActivity {
 
