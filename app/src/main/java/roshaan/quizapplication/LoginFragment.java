@@ -1,5 +1,6 @@
 package roshaan.quizapplication;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
@@ -38,6 +39,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     FirebaseAuth mAuth;
     DatabaseReference mRef;
 
+    ProgressDialog progressDialog;
 
 
     @Override
@@ -45,17 +47,19 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        binding= DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.fragment_login,container,false);
+        binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.fragment_login, container, false);
         setUpListeners();
 
-        mAuth=FirebaseAuth.getInstance();
-        mRef= FirebaseDatabase.getInstance().getReference("Users");
+        mAuth = FirebaseAuth.getInstance();
+        mRef = FirebaseDatabase.getInstance().getReference("Users");
 
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Singing in");
         return binding.getRoot();
     }
 
 
-    private void setUpListeners(){
+    private void setUpListeners() {
 
         binding.login.setOnClickListener(this);
         binding.signup.setOnClickListener(this);
@@ -81,30 +85,30 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
 
-        if(view==binding.login){
+        if (view == binding.login) {
 
-            if(binding.email.length()>0&&
-                    binding.password.length()>0){
+            progressDialog.show();
+            if (binding.email.length() > 0 &&
+                    binding.password.length() > 0) {
 
-                login(binding.email.getText().toString(),binding.password.getText().toString());
-            }
-            else{
+                login(binding.email.getText().toString(), binding.password.getText().toString());
+            } else {
+                progressDialog.dismiss();
                 Toast.makeText(getContext(), "Fill all fields", Toast.LENGTH_SHORT).show();
             }
-        }
-        else if(view==binding.signup){
+        } else if (view == binding.signup) {
             mListener.onLoginFragmentInteraction(OnFragmentInteractionListener.SIGNUP);
         }
     }
 
-    private  void login(String email, String password){
+    private void login(String email, String password) {
 
-        mAuth.signInWithEmailAndPassword(email,password)
+        mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
 
                             //checking user type
                             mRef.orderByChild("userID")
@@ -112,41 +116,41 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                                     .addValueEventListener(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
+                                            progressDialog.dismiss();
+                                            if (dataSnapshot.exists()) {
 
-                                            if(dataSnapshot.exists()){
-
-                                                Iterable<DataSnapshot> child=dataSnapshot.getChildren();
-                                                UserModel user=null;
-                                                for(DataSnapshot ch:child)
-                                                    user=ch.getValue(UserModel.class);
+                                                Iterable<DataSnapshot> child = dataSnapshot.getChildren();
+                                                UserModel user = null;
+                                                for (DataSnapshot ch : child)
+                                                    user = ch.getValue(UserModel.class);
 
 
-                                                if(user.getUserType().equals("Player")){
+                                                if (user.getUserType().equals("Player")) {
                                                     mListener.onLoginFragmentInteraction(OnFragmentInteractionListener.PLAYER_FEED);
-                                                }
-                                                else{
+                                                } else {
                                                     mListener.onLoginFragmentInteraction(OnFragmentInteractionListener.QUIZTAKER_FEED);
                                                 }
-                                            }
-                                            else {
+                                            } else {
                                                 Toast.makeText(getContext(), "User doesnot exist", Toast.LENGTH_SHORT).show();
                                             }
                                         }
 
                                         @Override
                                         public void onCancelled(DatabaseError databaseError) {
-
+                                            progressDialog.dismiss();
                                         }
                                     });
-                        }
-                        else{
+                        } else {
+                            progressDialog.dismiss();
                             Toast.makeText(getContext(), "Authentication failed", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
+
     public interface OnFragmentInteractionListener {
-        int PLAYER_FEED=0,QUIZTAKER_FEED=1,SIGNUP=3;
+        int PLAYER_FEED = 0, QUIZTAKER_FEED = 1, SIGNUP = 3;
+
         // TODO: Update argument type and name
         void onLoginFragmentInteraction(int i);
     }

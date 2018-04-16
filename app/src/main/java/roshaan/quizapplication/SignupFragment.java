@@ -35,30 +35,31 @@ public class SignupFragment extends Fragment implements View.OnClickListener {
 
     private OnFragmentInteractionListener mListener;
 
-   FragmentSignupBinding binding;
+    FragmentSignupBinding binding;
 
-   FirebaseAuth mAuth;
-   DatabaseReference mRef;
+    FirebaseAuth mAuth;
+    DatabaseReference mRef;
 
-   ProgressDialog progressDialog;
+    ProgressDialog progressDialog;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        binding= DataBindingUtil.inflate(LayoutInflater.from(getContext()),R.layout.fragment_signup,container,false);
+        binding = DataBindingUtil.inflate(LayoutInflater.from(getContext()), R.layout.fragment_signup, container, false);
 
-        mAuth=FirebaseAuth.getInstance();
-        mRef= FirebaseDatabase.getInstance().getReference("Users");
+        mAuth = FirebaseAuth.getInstance();
+        mRef = FirebaseDatabase.getInstance().getReference("Users");
 
-        progressDialog=new ProgressDialog(getContext());
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Singing up");
 
         setupListeners();
         return binding.getRoot();
     }
 
-    private void setupListeners(){
+    private void setupListeners() {
 
         binding.Signup.setOnClickListener(this);
 
@@ -85,57 +86,56 @@ public class SignupFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
 
-        RadioButton rb=getView().findViewById(binding.rg.getCheckedRadioButtonId());
+        RadioButton rb = getView().findViewById(binding.rg.getCheckedRadioButtonId());
 
-        if(view==binding.Signup){
+        if (view == binding.Signup) {
+            progressDialog.show();
+            if (binding.email.length() > 0 &&
+                    binding.password.length() > 0) {
 
-            if(binding.email.length()>0&&
-                    binding.password.length()>0){
-
-                if(performValiations()){
+                if (performValiations()) {
 
                     signUp(binding.email.getText().toString(),
                             binding.password.getText().toString(),
                             rb.getText().toString()
                     );
                 }
-            }
-            else{
+            } else {
+                progressDialog.dismiss();
                 Toast.makeText(getContext(), "Fill all fields", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    private boolean performValiations(){
+    private boolean performValiations() {
 
-        boolean flag=true;
+        boolean flag = true;
 
-        if(!Patterns.EMAIL_ADDRESS.matcher(binding.email.getText()).matches()){
+        if (!Patterns.EMAIL_ADDRESS.matcher(binding.email.getText()).matches()) {
             binding.email.setError("Invalid format");
-            flag=false;
+            flag = false;
         }
-        if(binding.password.length()<8){
+        if (binding.password.length() < 8) {
             binding.password.setError("Password must be 8 characters long");
-            flag=false;
+            flag = false;
         }
 
         return flag;
     }
 
-    private void signUp(final String email, String password, final String userType){
+    private void signUp(final String email, String password, final String userType) {
 
         progressDialog.setMessage("Signing in");
 
-        mAuth.createUserWithEmailAndPassword(email,password)
+        mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
 
-                            setUpProfileInDatabase(new UserModel(email,userType,mAuth.getCurrentUser().getUid()));
-                        }
-                        else{
+                            setUpProfileInDatabase(new UserModel(email, userType, mAuth.getCurrentUser().getUid()));
+                        } else {
                             progressDialog.dismiss();
                             System.out.println(task.getException());
                             Toast.makeText(getContext(), "Authentication failed", Toast.LENGTH_SHORT).show();
@@ -144,9 +144,9 @@ public class SignupFragment extends Fragment implements View.OnClickListener {
                 });
     }
 
-    private void setUpProfileInDatabase(final UserModel user){
+    private void setUpProfileInDatabase(final UserModel user) {
 
-        String key=mRef.push().getKey();
+        String key = mRef.push().getKey();
 
         mRef.child(key)
                 .setValue(user)
@@ -154,27 +154,27 @@ public class SignupFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
-                        if(task.isSuccessful()){
-
-                            if(user.getUserType().equals("Player")){
+                        if (task.isSuccessful()) {
+                            progressDialog.dismiss();
+                            if (user.getUserType().equals("Player")) {
                                 progressDialog.dismiss();
                                 mListener.onSignupFragmentInteraction(OnFragmentInteractionListener.PLAYER_FEED);
-                            }
-                            else if(user.getUserType().equals("QuizTaker")){
+                            } else if (user.getUserType().equals("QuizTaker")) {
                                 progressDialog.dismiss();
                                 mListener.onSignupFragmentInteraction(OnFragmentInteractionListener.QUIZTAKER_FEED);
                             }
-                        }
-                        else{
+                        } else {
                             progressDialog.dismiss();
                             Toast.makeText(getContext(), "Error inserting user", Toast.LENGTH_SHORT).show();
                         }
                     }
-                });}
+                });
+    }
 
 
     public interface OnFragmentInteractionListener {
-        int PLAYER_FEED=0,QUIZTAKER_FEED=1;
+        int PLAYER_FEED = 0, QUIZTAKER_FEED = 1;
+
         // TODO: Update argument type and name
         void onSignupFragmentInteraction(int i);
     }
