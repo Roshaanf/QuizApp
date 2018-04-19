@@ -98,6 +98,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             }
         } else if (view == binding.signup) {
             mListener.onLoginFragmentInteraction(OnFragmentInteractionListener.SIGNUP);
+
         }
     }
 

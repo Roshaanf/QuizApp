@@ -32,11 +32,13 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
             case LoginFragment.OnFragmentInteractionListener.PLAYER_FEED:
                 startActivity(new Intent(this, PlayerHomeActivity.class));
-                finish();
+                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
+              finish();
                 break;
 
             case LoginFragment.OnFragmentInteractionListener.QUIZTAKER_FEED:
                 startActivity(new Intent(this, QuizTakerHomeActivity.class));
+                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                 finish();
                 break;
             case LoginFragment.OnFragmentInteractionListener.SIGNUP:
@@ -55,11 +57,13 @@ public class AuthenticationActivity extends AppCompatActivity implements
 
             case SignupFragment.OnFragmentInteractionListener.PLAYER_FEED:
                 startActivity(new Intent(this, PlayerHomeActivity.class));
+                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                 finish();
                 break;
 
             case SignupFragment.OnFragmentInteractionListener.QUIZTAKER_FEED:
                 startActivity(new Intent(this, QuizTakerHomeActivity.class));
+                overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                 finish();
                 break;
         }
